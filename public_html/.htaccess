@@ -1,0 +1,29 @@
+# PRETTYURLS MOD BEGINS
+# Pretty URLs mod
+# http://code.google.com/p/prettyurls/
+# .htaccess file generated automatically on: July 9, 2025, 9:22
+
+RewriteEngine on
+RewriteBase /
+
+# Rules for: profiles
+RewriteRule ^profile/([^/]+)/?$ ./index.php?pretty;action=profile;user=$1 [L,QSA,B,BNP]
+
+# Rules for: actions
+RewriteRule ^(agreement|acceptagreement|activate|admin|announce|attachapprove|buddy|calendar)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(clock|coppa|credits|deletemsg|dlattach|editpoll|editpoll2|findmember)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(groups|help|helpadmin|jsmodify|jsoption|likes|lock|lockvoting)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(login|login2|logintfa|logout|markasread|mergetopics|mlist|moderate)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(modifycat|movetopic|movetopic2|notifyannouncements|notifyboard|notifytopic|pm|post)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(post2|printpage|profile|quotefast|quickmod|quickmod2|recent|reminder)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(removepoll|removetopic2|reporttm|requestmembers|restoretopic|search|search2|sendactivation)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(signup|signup2|smstats|suggest|splittopics|stats|sticky|theme)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(trackip|about:unknown|unread|unreadreplies|uploadAttach|verificationcode|viewprofile|vote)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(viewquery|viewsmfile|who|\.xml|xmlhttp|forum|httperror|sitemap)/?$ ./index.php?pretty;action=$1 [L,QSA]
+RewriteRule ^(seored|seocloud)/?$ ./index.php?pretty;action=$1 [L,QSA]
+
+# Rules for: boards
+RewriteRule ^([-_!~*'()$a-zA-Z0-9]+)/?$ ./index.php?pretty;board=$1.0 [L,QSA]
+RewriteRule ^([-_!~*'()$a-zA-Z0-9]+)/([0-9]*)/?$ ./index.php?pretty;board=$1.$2 [L,QSA]
+
+# PRETTYURLS MOD ENDS
