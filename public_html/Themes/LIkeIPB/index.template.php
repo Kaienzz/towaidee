@@ -161,7 +161,23 @@ function template_body_above()
 	echo '
 				</div><!-- #inner_section -->
 			</div><!-- #upper_section -->
-			<div id="content_section">
+			<div id="content_section">';
+			
+			// Show left sidebar if enabled (default: true)
+			if (empty($modSettings['disable_left_sidebar']))
+			{
+				echo '
+				<div id="sidebar_left" class="sidebar">
+					<div class="sidebar_content">';
+					
+					// Load sidebar template
+					require_once($settings['theme_dir'] . '/Sidebar.template.php');
+					template_left_sidebar();
+					
+					echo '
+					</div>
+				</div><!-- #sidebar_left -->';
+			}
 				<div id="main_content_section">';
 
 					// Theme LInktree
@@ -174,7 +190,21 @@ function template_body_above()
 function template_body_below()
 {
 	echo '
-				</div><!-- #main_content_section -->
+				</div><!-- #main_content_section -->';
+				
+				// Show right sidebar if enabled (default: true)
+				if (empty($modSettings['disable_right_sidebar']))
+				{
+					echo '
+				<div id="sidebar_right" class="sidebar">
+					<div class="sidebar_content">';
+					
+					template_right_sidebar();
+					
+					echo '
+					</div>
+				</div><!-- #sidebar_right -->';
+				}
 			</div><!-- #content_section -->
 		</div><!-- #wrapper -->
 	</div><!-- #footerfix -->';
