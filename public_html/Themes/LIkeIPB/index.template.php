@@ -137,7 +137,9 @@ function template_body_above()
         // または、直接関数が既に定義されていれば、下記のように呼び出しも可能です：
 		
 		// index.template.php の該当部分
-		require_once($settings['theme_dir'] . '/Welcome.template.php');
+		if (file_exists($settings['theme_dir'] . '/Welcome.template.php')) {
+			require_once($settings['theme_dir'] . '/Welcome.template.php');
+		}
 
 		// ホーム（＝Boardindex）の場合
 		if (empty($context['current_board']) && empty($context['current_topic']) &&
@@ -171,8 +173,10 @@ function template_body_above()
 					<div class="sidebar_content">';
 					
 					// Load sidebar template
-					require_once($settings['theme_dir'] . '/Sidebar.template.php');
-					template_left_sidebar();
+					if (file_exists($settings['theme_dir'] . '/Sidebar.template.php')) {
+						require_once($settings['theme_dir'] . '/Sidebar.template.php');
+						template_left_sidebar();
+					}
 					
 					echo '
 					</div>
