@@ -41,6 +41,19 @@
 	#top_info .welcome {
 		display: none;
 	}
+	#content_section {
+		flex-direction: column;
+	}
+	.sidebar {
+		width: 100%;
+		order: 3;
+	}
+	#main_content_section {
+		order: 1;
+	}
+	.sidebar_content {
+		position: static;
+	}
 	/* Calendar */
 	#event_time_options {
 		width: 44%;
@@ -174,6 +187,19 @@
 		border-left: 0;
 		border-right: 0;
 		border-radius: 0;
+	}
+	#content_section {
+		flex-direction: column;
+	}
+	.sidebar {
+		width: 100%;
+		order: 3;
+	}
+	#main_content_section {
+		order: 1;
+	}
+	.sidebar_content {
+		position: static;
 	}
 	#footer {
 		padding: 10px;
@@ -838,6 +864,26 @@
 @media (max-width: 480px) {
 	.boardindex_table .board_stats {
 		display: none;
+	}
+	#content_section {
+		flex-direction: column;
+		padding-inline: 0.5em;
+	}
+	.sidebar {
+		width: 100%;
+		order: 3;
+	}
+	#main_content_section {
+		order: 1;
+	}
+	.sidebar_content {
+		position: static;
+	}
+	.sidebar_block {
+		margin-bottom: 0.5em;
+	}
+	.sidebar_content_inner {
+		padding: 8px;
 	}
 	.boardindex_table .board_icon {
 		min-width: 48px;

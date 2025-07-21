@@ -1,6 +1,6 @@
 <?php
-if (!defined('SMF'))
-    die('Hacking attempt...');
+// if (!defined('SMF'))
+//     die('Hacking attempt...');
 
 /*
  * サイト紹介 BOX を表示するテンプレート関数（掲示板のカテゴリ部分のデザインに合わせる）

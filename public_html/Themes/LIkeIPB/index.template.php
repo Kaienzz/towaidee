@@ -137,7 +137,9 @@ function template_body_above()
         // または、直接関数が既に定義されていれば、下記のように呼び出しも可能です：
 		
 		// index.template.php の該当部分
-		require_once($settings['theme_dir'] . '/Welcome.template.php');
+		if (file_exists($settings['theme_dir'] . '/Welcome.template.php')) {
+			require_once($settings['theme_dir'] . '/Welcome.template.php');
+		}
 
 		// ホーム（＝Boardindex）の場合
 		if (empty($context['current_board']) && empty($context['current_topic']) &&
@@ -161,7 +163,25 @@ function template_body_above()
 	echo '
 				</div><!-- #inner_section -->
 			</div><!-- #upper_section -->
-			<div id="content_section">
+			<div id="content_section">';
+			
+			// Show left sidebar if enabled (default: true)
+			if (empty($modSettings['disable_left_sidebar']))
+			{
+				echo '
+				<div id="sidebar_left" class="sidebar">
+					<div class="sidebar_content">';
+					
+					// Load sidebar template
+					if (file_exists($settings['theme_dir'] . '/Sidebar.template.php')) {
+						require_once($settings['theme_dir'] . '/Sidebar.template.php');
+						template_left_sidebar();
+					}
+					
+					echo '
+					</div>
+				</div><!-- #sidebar_left -->';
+			}
 				<div id="main_content_section">';
 
 					// Theme LInktree
@@ -174,7 +194,21 @@ function template_body_above()
 function template_body_below()
 {
 	echo '
-				</div><!-- #main_content_section -->
+				</div><!-- #main_content_section -->';
+				
+				// Show right sidebar if enabled (default: true)
+				if (empty($modSettings['disable_right_sidebar']))
+				{
+					echo '
+				<div id="sidebar_right" class="sidebar">
+					<div class="sidebar_content">';
+					
+					template_right_sidebar();
+					
+					echo '
+					</div>
+				</div><!-- #sidebar_right -->';
+				}
 			</div><!-- #content_section -->
 		</div><!-- #wrapper -->
 	</div><!-- #footerfix -->';
