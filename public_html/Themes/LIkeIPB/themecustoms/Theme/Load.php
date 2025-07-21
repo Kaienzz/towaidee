@@ -64,6 +64,9 @@ class Load
 			'theme_colors' => [
 				'order_pos' => 100,
 			],
+			'two-column-layout' => [
+				'order_pos' => 3001,
+			],
 		];
 	}
 

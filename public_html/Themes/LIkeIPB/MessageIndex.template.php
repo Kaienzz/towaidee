@@ -18,8 +18,10 @@ function template_main()
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div id="display_head" class="information">
-			<h2 class="display_title">', $context['name'], '</h2>';
+	<div class="two-column-layout message-index-layout">
+		<div class="main-content">
+			<div id="display_head" class="information">
+				<h2 class="display_title">', $context['name'], '</h2>';
 
 	if (isset($context['description']) && $context['description'] != '')
 		echo '
@@ -388,14 +390,23 @@ function template_main()
 
 	// Lets pop the...
 	echo '
-	<div id="mobile_action" class="popup_container">
-		<div class="popup_window description">
-			<div class="popup_heading">', $txt['mobile_action'], '
-				<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+		<div id="mobile_action" class="popup_container">
+			<div class="popup_window description">
+				<div class="popup_heading">', $txt['mobile_action'], '
+					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+				</div>
+				', template_button_strip($context['normal_buttons']), '
 			</div>
-			', template_button_strip($context['normal_buttons']), '
 		</div>
-	</div>';
+		</div><!-- .main-content -->
+		<div class="sidebar">';
+		
+	// サイドバーコンテンツを読み込み
+	template_sidebar_content();
+	
+	echo '
+		</div><!-- .sidebar -->
+	</div><!-- .two-column-layout -->';
 }
 
 /**

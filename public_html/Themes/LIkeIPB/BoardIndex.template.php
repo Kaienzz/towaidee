@@ -80,7 +80,9 @@ function template_main()
 	global $context, $txt;
 
 	echo '
-	<div id="boardindex_table" class="boardindex_table">';
+	<div class="two-column-layout board-index-layout">
+		<div class="main-content">
+			<div id="boardindex_table" class="boardindex_table">';
 
 	/* Each category in categories is made up of:
 	   id, href, link, name, is_collapsed (is it collapsed?), can_collapse (is it okay if it is?),
@@ -151,7 +153,16 @@ function template_main()
 	}
 
 	echo '
-	</div><!-- #boardindex_table -->';
+			</div><!-- #boardindex_table -->
+		</div><!-- .main-content -->
+		<div class="sidebar">';
+			
+	// サイドバーコンテンツを読み込み
+	template_sidebar_content();
+	
+	echo '
+		</div><!-- .sidebar -->
+	</div><!-- .two-column-layout -->';
     // Edit_8/Jul/2025
 	// Show the mark all as read button?
 	//if ($context['user']['is_logged'] && !empty($context['categories']))
