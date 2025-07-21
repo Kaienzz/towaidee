@@ -182,6 +182,8 @@ function template_body_above()
 					</div>
 				</div><!-- #sidebar_left -->';
 			}
+			
+		echo '
 				<div id="main_content_section">';
 
 					// Theme LInktree
@@ -209,6 +211,8 @@ function template_body_below()
 					</div>
 				</div><!-- #sidebar_right -->';
 				}
+			
+		echo '
 			</div><!-- #content_section -->
 		</div><!-- #wrapper -->
 	</div><!-- #footerfix -->';
