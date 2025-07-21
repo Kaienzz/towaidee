@@ -140,9 +140,12 @@ function template_main()
 					</div>
 					-->
 
+					<!-- 最終投稿情報を非表示にしてカテゴリー名の改行を防止 -->
+					<!--
 					<div class="lastpost">
 						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
 					</div>
+					-->
 
 				</div><!-- #board_[id] -->';
 		}

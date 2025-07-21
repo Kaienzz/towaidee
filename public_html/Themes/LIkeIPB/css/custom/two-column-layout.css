@@ -4,14 +4,14 @@
 .two-column-layout {
     display: grid;
     grid-template-columns: 1fr 300px;
-    gap: 25px;
+    gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
     align-items: start;
     position: relative;
     z-index: 10;
-    padding: 0 15px;
+    padding: 0 10px;
     box-sizing: border-box;
 }
 
@@ -32,6 +32,8 @@
     border-radius: 0;
     padding: 0;
     margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Sidebar widget headers styled like catbg */
@@ -43,8 +45,10 @@
     align-items: center;
     border-radius: 5px 5px 0 0;
     box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.2) inset;
-    margin: 0;
-    border: none;
+    margin: 1px 0 0;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--catbg-border-color);
     color: var(--catbg-txt-color);
 }
 
@@ -61,7 +65,7 @@
     width: 100%;
 }
 
-/* Fallback for h3 directly in widget - simplified for individual widgets */
+/* Fallback for h3 directly in widget - styled like cat_bar */
 .sidebar-widget > h3 {
     background: var(--catbg-bg);
     display: flex;
@@ -70,8 +74,10 @@
     align-items: center;
     border-radius: 5px 5px 0 0;
     box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.2) inset;
-    margin: 0;
-    border: none;
+    margin: 1px 0 0;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--catbg-border-color);
     color: var(--catbg-txt-color);
     font-family: var(--body-font-family);
     font-size: 1em;
@@ -81,18 +87,21 @@
     padding-block: 0;
 }
 
-/* Widget content borders - simplified */
+/* Widget content area - styled like windowbg with 9px border */
 .sidebar-widget .widget-content {
-    border: none;
     background: var(--windowbg-bg);
+    border-width: 9px;
+    border-style: solid;
+    border-color: var(--uppersection-bg);
+    border-radius: 0;
+    padding: 15px;
 }
 
 .sidebar-widget {
-    background: var(--windowbg-bg);
-    border: 1px solid var(--catbg-border-color);
-    border-radius: 5px;
     margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: transparent;
+    border: none;
+    border-radius: 0;
 }
 
 .sidebar-widget:last-child {
@@ -101,11 +110,7 @@
 
 /* Remove the complex border logic since each widget is now separate */
 
-/* Widget content area - updated for seamless design */
-.sidebar-widget .widget-content {
-    padding: 15px;
-    background: var(--windowbg-bg);
-}
+/* Remove duplicate - widget content styling is now handled above */
 
 /* Recent Posts Widget */
 .recent-posts-list {
@@ -190,6 +195,18 @@
     list-style: none;
     padding: 0;
     margin: 0;
+}
+
+/* Hide statistics and lastpost columns in 2-column layout to prevent category name wrapping */
+.two-column-layout .board_stats,
+.two-column-layout .lastpost {
+    display: none !important;
+}
+
+/* Ensure board info takes full available width */
+.two-column-layout .up_contain .info {
+    flex: 1;
+    max-width: 100%;
 }
 
 .online-users-list li {

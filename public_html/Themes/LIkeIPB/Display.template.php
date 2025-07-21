@@ -274,3 +274,232 @@ function template_main()
 		dragDropAttachments.update();
 </script>';
 }
+
+/**
+ * Display a single post
+ */
+function template_single_post($message)
+{
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+
+	$ignoring = false;
+
+	if ($message['can_remove'])
+		$context['removableMessageIDs'][] = $message['id'];
+
+	// Are we ignoring this message?
+	if (!empty($message['is_ignored']))
+	{
+		$ignoring = true;
+		$context['ignoredMsgs'][] = $message['id'];
+	}
+
+	// Show the message anchor and a "new" anchor if this message is new.
+	echo '
+				<div class="', $message['css_class'], '" id="msg' . $message['id'] . '">
+					', $message['id'] != $context['first_message'] ? '
+					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
+					<div class="post_wrapper">';
+
+	// Show information about the poster of this message.
+	echo '
+						<div class="poster">';
+
+	// Are there any custom fields above the member name?
+	if (!empty($message['custom_fields']['above_member']))
+	{
+		echo '
+							<div class="custom_fields_above_member">
+								<ul class="nolist">';
+
+		foreach ($message['custom_fields']['above_member'] as $custom)
+			echo '
+									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+		echo '
+								</ul>
+							</div>';
+	}
+
+	echo '
+							<h4>';
+
+	// Show online and offline buttons?
+	if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
+		echo '
+								', $context['can_send_pm'] ? '<a href="' . $message['member']['online']['href'] . '" title="' . $message['member']['online']['label'] . '">' : '', '<span class="' . ($message['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $message['member']['online']['text'] . '"></span>', $context['can_send_pm'] ? '</a>' : '';
+
+	// Custom fields BEFORE the username?
+	if (!empty($message['custom_fields']['before_member']))
+		foreach ($message['custom_fields']['before_member'] as $custom)
+			echo '
+								<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
+
+	// Show a link to the member's profile.
+	echo '
+								', $message['member']['link'];
+
+	// Custom fields AFTER the username?
+	if (!empty($message['custom_fields']['after_member']))
+		foreach ($message['custom_fields']['after_member'] as $custom)
+			echo '
+								<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
+
+	// Begin display of user info
+	echo '
+							</h4>
+							<ul class="user_info">';
+
+	// Show the member's custom title, if they have one.
+	if (!empty($message['member']['title']))
+		echo '
+								<li class="title">', $message['member']['title'], '</li>';
+
+	// Show the member's primary group (like 'Administrator') if they have one.
+	if (!empty($message['member']['group']))
+		echo '
+								<li class="membergroup">', $message['member']['group'], '</li>';
+
+	// Show the user's avatar.
+	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+		echo '
+								<li class="avatar">
+									<a href="', $message['member']['href'], '" rel="nofollow">', $message['member']['avatar']['image'], '</a>
+								</li>';
+
+	// Are there any custom fields below the avatar?
+	if (!empty($message['custom_fields']['below_avatar']))
+		foreach ($message['custom_fields']['below_avatar'] as $custom)
+			echo '
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+	// Don't show these things for guests.
+	if (!$message['member']['is_guest'])
+	{
+		// Show the post group icons
+		echo '
+								<li class="icons">', $message['member']['group_icons'], '</li>';
+
+		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
+		if ((empty($modSettings['hide_post_group']) || empty($message['member']['group'])) && !empty($message['member']['post_group']))
+			echo '
+								<li class="postgroup">', $message['member']['post_group'], '</li>';
+
+		// Show how many posts they have made.
+		if (!isset($context['disabled_fields']['posts']))
+			echo '
+								<li class="postcount">', $txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
+
+		// Show their personal text?
+		if (!empty($modSettings['show_blurb']) && !empty($message['member']['blurb']))
+			echo '
+								<li class="blurb">', $message['member']['blurb'], '</li>';
+
+		// Any custom fields to show as icons?
+		if (!empty($message['custom_fields']['icons']))
+		{
+			echo '
+								<li class="im_icons">
+									<ol>';
+
+			foreach ($message['custom_fields']['icons'] as $custom)
+				echo '
+										<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+			echo '
+									</ol>
+								</li>';
+		}
+
+		// Show the website and email address buttons.
+		if ($message['member']['show_profile_buttons'])
+		{
+			echo '
+								<li class="profile">
+									<ol class="profile_icons">';
+
+			// Don't show an icon if they haven't specified a website.
+			if (!empty($message['member']['website']['url']) && !isset($context['disabled_fields']['website']))
+				echo '
+										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+
+			// Since we know this person isn't a guest, you *can* message them.
+			if ($context['can_send_pm'])
+				echo '
+										<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
+
+			// Show the email if necessary
+			if (!empty($message['member']['email']) && $message['member']['show_email'])
+				echo '
+										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+
+			echo '
+									</ol>
+								</li><!-- .profile -->';
+		}
+
+		// Any custom fields for standard placement?
+		if (!empty($message['custom_fields']['standard']))
+			foreach ($message['custom_fields']['standard'] as $custom)
+				echo '
+								<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
+	}
+	// Otherwise, show the guest's email.
+	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
+		echo '
+								<li class="email">
+									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a>
+								</li>';
+
+	// Show the IP to this user for this post - because you can moderate?
+	if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
+		echo '
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', $txt['show_ip'], '</span></a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+								</li>';
+
+	// Or, should we show it because this is you?
+	elseif ($message['can_see_ip'])
+		echo '
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', $txt['show_ip'], '</span></a>
+								</li>';
+
+	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
+	elseif (!$context['user']['is_guest'])
+		echo '
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
+								</li>';
+
+	// Otherwise, you see NOTHING!
+	else
+		echo '
+								<li class="poster_ip">', $txt['logged'], '</li>';
+
+	// Show the post itself, finally!
+	echo '
+							</ul>
+						</div><!-- .poster -->
+						<div class="postarea">
+							<div class="keyinfo">
+								<div id="subject_', $message['id'], '" class="subject_title">
+									', $message['link'], '
+								</div>
+								<div class="postinfo">
+									<span class="messageicon">
+										<img src="', $message['icon_url'] . '" alt="">
+									</span>
+									<a href="', $message['href'], '" rel="nofollow" title="', $message['subject'], '" class="smalltext">', $message['time'], '</a>
+								</div>
+								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
+							</div><!-- .keyinfo -->
+							<div class="post">
+								<div class="inner" data-msgid="', $message['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>
+									', $message['body'], '
+								</div>
+							</div><!-- .post -->
+						</div><!-- .postarea -->
+					</div><!-- .post_wrapper -->
+				</div><!-- msg -->';
+}
