@@ -3,8 +3,8 @@
 
 .two-column-layout {
     display: grid;
-    grid-template-columns: 70% 30%;
-    gap: 15px;
+    grid-template-columns: 1fr 300px;
+    gap: 25px;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
@@ -27,12 +27,11 @@
 }
 
 .sidebar {
-    background: var(--windowbg-bg);
-    border: 9px solid var(--uppersection-bg);
+    background: transparent;
+    border: none;
     border-radius: 0;
     padding: 0;
     margin-bottom: 0;
-    overflow: hidden;
 }
 
 /* Sidebar widget headers styled like catbg */
@@ -44,10 +43,8 @@
     align-items: center;
     border-radius: 5px 5px 0 0;
     box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.2) inset;
-    margin: 1px 0 0;
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--catbg-border-color);
+    margin: 0;
+    border: none;
     color: var(--catbg-txt-color);
 }
 
@@ -64,19 +61,17 @@
     width: 100%;
 }
 
-/* Fallback for h3 directly in widget */
+/* Fallback for h3 directly in widget - simplified for individual widgets */
 .sidebar-widget > h3 {
     background: var(--catbg-bg);
     display: flex;
     min-height: 35px;
     line-height: 35px;
     align-items: center;
-    border-radius: 0;
+    border-radius: 5px 5px 0 0;
     box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.2) inset;
     margin: 0;
-    border-style: solid;
-    border-width: 1px 0 1px 0;
-    border-color: var(--catbg-border-color);
+    border: none;
     color: var(--catbg-txt-color);
     font-family: var(--body-font-family);
     font-size: 1em;
@@ -86,38 +81,25 @@
     padding-block: 0;
 }
 
-/* First widget header gets top-left and top-right radius */
-.sidebar-widget:first-child > h3 {
-    border-radius: 5px 5px 0 0;
-    border-width: 1px;
-}
-
-/* Widget content borders */
+/* Widget content borders - simplified */
 .sidebar-widget .widget-content {
-    border-width: 0 1px;
-    border-style: solid;
-    border-color: var(--subboards-bg);
-}
-
-.sidebar-widget:last-child .widget-content {
-    border-bottom: 1px solid var(--subboards-bg);
+    border: none;
+    background: var(--windowbg-bg);
 }
 
 .sidebar-widget {
     background: var(--windowbg-bg);
-    border: none;
-    border-radius: 0;
-    margin-bottom: 0;
+    border: 1px solid var(--catbg-border-color);
+    border-radius: 5px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .sidebar-widget:last-child {
     margin-bottom: 0;
 }
 
-.sidebar-widget:not(:first-child) .sidebar-widget > h3,
-.sidebar-widget:not(:first-child) .widget-header {
-    border-top: 1px solid var(--catbg-border-color);
-}
+/* Remove the complex border logic since each widget is now separate */
 
 /* Widget content area - updated for seamless design */
 .sidebar-widget .widget-content {
