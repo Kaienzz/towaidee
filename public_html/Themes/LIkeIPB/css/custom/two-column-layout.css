@@ -3,11 +3,21 @@
 
 .two-column-layout {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 70% 30%;
     gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
     width: 90%;
+    align-items: start;
+    position: relative;
+    z-index: 10;
+}
+
+/* Ensure 2-column layout takes precedence over default theme layout */
+#main_content_section .two-column-layout {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .main-content {
@@ -180,6 +190,45 @@
 
 .two-column-layout .catbg {
     border-radius: var(--border-radius, 4px) var(--border-radius, 4px) 0 0;
+}
+
+/* Hide default theme sidebars when using 2-column layout */
+.two-column-layout ~ #sidebar_left,
+.two-column-layout ~ #sidebar_right,
+body:has(.two-column-layout) #sidebar_left,
+body:has(.two-column-layout) #sidebar_right {
+    display: none !important;
+}
+
+/* Alternative approach - hide sidebars in wrapper when 2-column is present */
+#wrapper:has(.two-column-layout) #sidebar_left,
+#wrapper:has(.two-column-layout) #sidebar_right {
+    display: none !important;
+}
+
+/* More specific targeting */
+#content_section:has(.two-column-layout) #sidebar_left,
+#content_section:has(.two-column-layout) #sidebar_right {
+    display: none !important;
+}
+
+/* Fallback for browsers that don't support :has() */
+.page-with-two-column #sidebar_left,
+.page-with-two-column #sidebar_right {
+    display: none !important;
+}
+
+/* Ensure main content area takes full width when sidebars are hidden */
+.page-with-two-column #main_content_section {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Force full width for main content when 2-column layout is active */
+.two-column-layout #main_content_section {
+    width: 100%;
+    max-width: none;
 }
 
 /* Board-specific layouts */

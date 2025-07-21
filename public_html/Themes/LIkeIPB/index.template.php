@@ -97,10 +97,19 @@ function template_html_above()
 	// Output any remaining HTML headers. (from mods, maybe?)
 	echo $context['html_headers'];
 
+	// Determine if 2-column layout should be used
+	$use_two_column = (
+		empty($context['current_action']) || 
+		in_array($context['current_action'], array('forum', 'messageindex')) ||
+		(!empty($context['current_board']) && empty($context['current_action'])) ||
+		(!empty($context['current_topic']) && empty($context['current_action']))
+	);
+	
 	echo '
 </head>
 <body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? $context['current_action'] : (!empty($context['current_board']) ?
-		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">
+		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', 
+		$use_two_column ? ' page-with-two-column' : '', '">
 	<div id="footerfix">';
 }
 
