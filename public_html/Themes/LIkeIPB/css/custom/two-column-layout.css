@@ -4,13 +4,15 @@
 .two-column-layout {
     display: grid;
     grid-template-columns: 70% 30%;
-    gap: 20px;
+    gap: 15px;
     max-width: 1200px;
     margin: 0 auto;
-    width: 90%;
+    width: 100%;
     align-items: start;
     position: relative;
     z-index: 10;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
 /* Ensure 2-column layout takes precedence over default theme layout */
@@ -29,7 +31,8 @@
     border: 9px solid var(--uppersection-bg);
     border-radius: 0;
     padding: 0;
-    margin-bottom: 1em;
+    margin-bottom: 0;
+    overflow: hidden;
 }
 
 /* Sidebar widget headers styled like catbg */
@@ -68,11 +71,11 @@
     min-height: 35px;
     line-height: 35px;
     align-items: center;
-    border-radius: 5px 5px 0 0;
+    border-radius: 0;
     box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.2) inset;
     margin: 0;
     border-style: solid;
-    border-width: 1px;
+    border-width: 1px 0 1px 0;
     border-color: var(--catbg-border-color);
     color: var(--catbg-txt-color);
     font-family: var(--body-font-family);
@@ -83,24 +86,43 @@
     padding-block: 0;
 }
 
+/* First widget header gets top-left and top-right radius */
+.sidebar-widget:first-child > h3 {
+    border-radius: 5px 5px 0 0;
+    border-width: 1px;
+}
+
+/* Widget content borders */
+.sidebar-widget .widget-content {
+    border-width: 0 1px;
+    border-style: solid;
+    border-color: var(--subboards-bg);
+}
+
+.sidebar-widget:last-child .widget-content {
+    border-bottom: 1px solid var(--subboards-bg);
+}
+
 .sidebar-widget {
     background: var(--windowbg-bg);
-    border: 9px solid var(--uppersection-bg);
+    border: none;
     border-radius: 0;
-    margin-bottom: 1em;
+    margin-bottom: 0;
 }
 
 .sidebar-widget:last-child {
     margin-bottom: 0;
 }
 
-/* Widget content area */
+.sidebar-widget:not(:first-child) .sidebar-widget > h3,
+.sidebar-widget:not(:first-child) .widget-header {
+    border-top: 1px solid var(--catbg-border-color);
+}
+
+/* Widget content area - updated for seamless design */
 .sidebar-widget .widget-content {
     padding: 15px;
     background: var(--windowbg-bg);
-    border-width: 0 1px 1px;
-    border-color: var(--subboards-bg);
-    border-style: solid;
 }
 
 /* Recent Posts Widget */
@@ -207,11 +229,13 @@
 @media (max-width: 991px) {
     .two-column-layout {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 10px;
+        padding: 0 10px;
     }
     
     .sidebar {
         order: -1; /* Show sidebar above main content on mobile */
+        margin-bottom: 20px;
     }
 }
 
