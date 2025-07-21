@@ -35,9 +35,11 @@ function template_sidebar_adsense()
 	echo '
 	<div class="sidebar-widget adsense-widget">
 		<h3>広告</h3>
-		<div class="adsense-placeholder">
-			AdSense広告エリア<br>
-			300x250px
+		<div class="widget-content">
+			<div class="adsense-placeholder">
+				AdSense広告エリア<br>
+				300x250px
+			</div>
 		</div>
 	</div>';
 }
@@ -74,21 +76,23 @@ function template_sidebar_recent_posts()
 	echo '
 	<div class="sidebar-widget">
 		<h3>最近の投稿</h3>
-		<ul class="recent-posts-list">';
+		<div class="widget-content">
+			<ul class="recent-posts-list">';
 		
 	foreach ($recent_posts as $post)
 	{
 		echo '
-			<li>
-				<a href="', $post['href'], '">', $post['title'], '</a>
-				<div class="recent-posts-meta">
-					by ', $post['poster'], ' - ', $post['time'], '
-				</div>
-			</li>';
+				<li>
+					<a href="', $post['href'], '">', $post['title'], '</a>
+					<div class="recent-posts-meta">
+						by ', $post['poster'], ' - ', $post['time'], '
+					</div>
+				</li>';
 	}
 	
 	echo '
-		</ul>
+			</ul>
+		</div>
 	</div>';
 }
 
@@ -110,19 +114,21 @@ function template_sidebar_stats()
 	echo '
 	<div class="sidebar-widget">
 		<h3>フォーラム統計</h3>
-		<ul class="stats-list">';
+		<div class="widget-content">
+			<ul class="stats-list">';
 		
 	foreach ($stats as $label => $value)
 	{
 		echo '
-			<li>
-				<span class="stat-label">', $label, '</span>
-				<span class="stat-value">', $value, '</span>
-			</li>';
+				<li>
+					<span class="stat-label">', $label, '</span>
+					<span class="stat-value">', $value, '</span>
+				</li>';
 	}
 	
 	echo '
-		</ul>
+			</ul>
+		</div>
 	</div>';
 }
 
@@ -138,32 +144,34 @@ function template_sidebar_online_users()
 	{
 		echo '
 		<div class="sidebar-widget">
-			<h3>オンラインユーザー</h3>';
+			<h3>オンラインユーザー</h3>
+			<div class="widget-content">';
 			
 		if (!empty($context['users_online']))
 		{
 			echo '
-			<div class="online-users-count">
-				現在 ', $context['num_users_online'], ' 人がオンライン
-			</div>
-			<ul class="online-users-list">';
+				<div class="online-users-count">
+					現在 ', $context['num_users_online'], ' 人がオンライン
+				</div>
+				<ul class="online-users-list">';
 			
 			foreach ($context['users_online'] as $user)
 			{
 				echo '
-				<li>', $user['link'], '</li>';
+					<li>', $user['link'], '</li>';
 			}
 			
 			echo '
-			</ul>';
+				</ul>';
 		}
 		else
 		{
 			echo '
-			<p>現在オンラインのユーザーはいません。</p>';
+				<p>現在オンラインのユーザーはいません。</p>';
 		}
 		
 		echo '
+			</div>
 		</div>';
 	}
 }
