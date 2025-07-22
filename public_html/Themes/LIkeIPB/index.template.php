@@ -97,19 +97,21 @@ function template_html_above()
 	// Output any remaining HTML headers. (from mods, maybe?)
 	echo $context['html_headers'];
 
-	// Determine if 2-column layout should be used
-	$use_two_column = (
-		empty($context['current_action']) || 
-		in_array($context['current_action'], array('forum', 'messageindex')) ||
-		(!empty($context['current_board']) && empty($context['current_action'])) ||
-		(!empty($context['current_topic']) && empty($context['current_action']))
+	// Determine if 2-column layout should be used - only for specific pages
+	$context['use_two_column'] = (
+		// Board index (forum homepage)
+		(empty($context['current_action']) && empty($context['current_board']) && empty($context['current_topic'])) ||
+		// Message index (topic list)
+		(!empty($context['current_board']) && empty($context['current_topic']) && (empty($context['current_action']) || $context['current_action'] == 'messageindex')) ||
+		// Topic display (individual topic/posts)
+		(!empty($context['current_topic']) && (empty($context['current_action']) || $context['current_action'] == 'display'))
 	);
 	
 	echo '
 </head>
 <body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? $context['current_action'] : (!empty($context['current_board']) ?
 		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', 
-		$use_two_column ? ' page-with-two-column' : '', '">
+		$context['use_two_column'] ? ' page-with-two-column' : '', '">
 	<div id="footerfix">';
 }
 
@@ -174,17 +176,23 @@ function template_body_above()
 			</div><!-- #upper_section -->
 			<div id="content_section">';
 			
-			// Show left sidebar if enabled (default: true)
-			if (empty($modSettings['disable_left_sidebar']))
+			// Show left sidebar if enabled and on 2-column layout pages only
+			if (empty($modSettings['disable_left_sidebar']) && !empty($context['use_two_column']))
 			{
 				echo '
 				<div id="sidebar_left" class="sidebar">
 					<div class="sidebar_content">';
 					
 					// Load sidebar template
-					if (file_exists($settings['theme_dir'] . '/Sidebar.template.php')) {
-						require_once($settings['theme_dir'] . '/Sidebar.template.php');
+					require_once($settings['theme_dir'] . '/Sidebar.template.php');
+					if (function_exists('template_left_sidebar')) {
 						template_left_sidebar();
+					} else {
+						// Fallback to individual widgets
+						template_sidebar_adsense();
+						template_sidebar_recent_posts();
+						template_sidebar_stats();
+						template_sidebar_online_users();
 					}
 					
 					echo '
@@ -207,14 +215,22 @@ function template_body_below()
 	echo '
 				</div><!-- #main_content_section -->';
 				
-				// Show right sidebar if enabled (default: true)
-				if (empty($modSettings['disable_right_sidebar']))
+				// Show right sidebar if enabled and on 2-column layout pages only
+				if (empty($modSettings['disable_right_sidebar']) && !empty($context['use_two_column']))
 				{
 					echo '
 				<div id="sidebar_right" class="sidebar">
 					<div class="sidebar_content">';
 					
-					template_right_sidebar();
+					if (function_exists('template_right_sidebar')) {
+						template_right_sidebar();
+					} else {
+						// Fallback to individual widgets
+						template_sidebar_adsense();
+						template_sidebar_recent_posts();
+						template_sidebar_stats();
+						template_sidebar_online_users();
+					}
 					
 					echo '
 					</div>
@@ -368,7 +384,7 @@ function template_theme_footer()
 					</li>
 				</ul>
 				<ul class="copyright">
-					<li class="smf_copyright">', theme_copyright(), '</li>
+					<li class="smf_copyright">', theme_copyright(), ' | <a href="', $scripturl, '?action=sitemap">Sitemap</a></li>
 				</ul>
 			</div>';
 

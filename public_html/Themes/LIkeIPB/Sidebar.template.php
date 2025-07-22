@@ -306,7 +306,7 @@ function template_right_sidebar()
 		<h4 class="sidebar_title">', $txt['hello_member_ndt'], ' ', $context['user']['name'], '</h4>
 		<div class="sidebar_content_inner">
 			<p><strong>', $txt['posts'], ':</strong> ', comma_format($user_info['posts']), '</p>
-			<p><strong>', $txt['date_registered'], ':</strong> ', $context['user']['registered'], '</p>';
+			<p><strong>', $txt['date_registered'], ':</strong> ', !empty($context['user']['registered_raw']) ? timeformat($context['user']['registered_raw']) : $txt['not_applicable'], '</p>';
 		
 		if (!empty($context['user']['unread_messages']))
 			echo '

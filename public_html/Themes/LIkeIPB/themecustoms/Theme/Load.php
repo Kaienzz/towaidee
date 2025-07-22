@@ -343,8 +343,8 @@ class Load
 	{
 		global $settings;
 
-		// Do not remove the copyright without permission!
-		$ST = 'Theme by <a href="https://smftricks.com">SMF Tricks</a>';
+		// Copyright notice removed for license-free version
+		$ST = '';
 		// Return it
 		if ($return)
 			return (!empty($settings['theme_name']) ? $settings['theme_name'] . ' | ' : '') . $ST;

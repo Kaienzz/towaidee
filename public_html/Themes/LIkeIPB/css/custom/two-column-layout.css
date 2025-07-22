@@ -1,7 +1,8 @@
 /* Two Column Layout for LikeIPB Theme */
-/* Main content area with sidebar layout */
+/* Main content area with sidebar layout - only for specific pages */
 
-.two-column-layout {
+/* Only apply 2-column layout to pages with the specific class */
+.page-with-two-column .two-column-layout {
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: 20px;
@@ -16,7 +17,7 @@
 }
 
 /* Ensure 2-column layout takes precedence over default theme layout */
-#main_content_section .two-column-layout {
+.page-with-two-column #main_content_section .two-column-layout {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
@@ -198,13 +199,13 @@
 }
 
 /* Hide statistics and lastpost columns in 2-column layout to prevent category name wrapping */
-.two-column-layout .board_stats,
-.two-column-layout .lastpost {
+.page-with-two-column .two-column-layout .board_stats,
+.page-with-two-column .two-column-layout .lastpost {
     display: none !important;
 }
 
 /* Ensure board info takes full available width */
-.two-column-layout .up_contain .info {
+.page-with-two-column .two-column-layout .up_contain .info {
     flex: 1;
     max-width: 100%;
 }
@@ -226,41 +227,41 @@
 
 /* Responsive Design */
 @media (max-width: 991px) {
-    .two-column-layout {
+    .page-with-two-column .two-column-layout {
         grid-template-columns: 1fr;
         gap: 10px;
         padding: 0 10px;
     }
     
-    .sidebar {
+    .page-with-two-column .sidebar {
         order: -1; /* Show sidebar above main content on mobile */
         margin-bottom: 20px;
     }
 }
 
 @media (max-width: 768px) {
-    .two-column-layout {
+    .page-with-two-column .two-column-layout {
         width: 95%;
         gap: 10px;
     }
     
-    .sidebar {
+    .page-with-two-column .sidebar {
         padding: 10px;
     }
     
-    .sidebar h3 {
+    .page-with-two-column .sidebar h3 {
         font-size: 1rem;
         margin-bottom: 10px;
     }
     
-    .sidebar-widget {
+    .page-with-two-column .sidebar-widget {
         margin-bottom: 15px;
     }
 }
 
 /* Integration with existing LikeIPB styles */
-.two-column-layout .windowbg,
-.two-column-layout .windowbg2 {
+.page-with-two-column .two-column-layout .windowbg,
+.page-with-two-column .two-column-layout .windowbg2 {
     margin-bottom: 15px;
 }
 
