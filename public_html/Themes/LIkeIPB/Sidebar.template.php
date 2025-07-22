@@ -8,23 +8,30 @@
  */
 
 /**
- * メインのサイドバーコンテンツ（2コラムレイアウト用）
+ * メインのサイドバーコンテンツ（2コラムレイアウト用）- 動的ウィジェット対応
  */
 function template_sidebar_content()
 {
 	global $context, $txt, $scripturl, $modSettings;
 
-	// AdSense ウィジェット
-	template_sidebar_adsense();
+	// 動的ウィジェットを取得して表示
+	$widgets = getSidebarWidgets('right');
 	
-	// 最近の投稿ウィジェット
-	template_sidebar_recent_posts();
-	
-	// フォーラム統計ウィジェット
-	template_sidebar_stats();
-	
-	// オンラインユーザーウィジェット
-	template_sidebar_online_users();
+	if (!empty($widgets))
+	{
+		foreach ($widgets as $widget)
+		{
+			template_display_widget($widget);
+		}
+	}
+	else
+	{
+		// フォールバック：デフォルトウィジェットを表示
+		template_sidebar_adsense();
+		template_sidebar_recent_posts();
+		template_sidebar_stats();
+		template_sidebar_online_users();
+	}
 }
 
 /**
@@ -45,53 +52,38 @@ function template_sidebar_adsense()
 }
 
 /**
- * 最近の投稿ウィジェット
+ * 最近の投稿ウィジェット（フォールバック用）
  */
 function template_sidebar_recent_posts()
 {
 	global $context, $txt, $scripturl;
 	
-	// 最近の投稿データを取得（実際の実装では適切なデータを取得する必要があります）
-	$recent_posts = array(
-		array(
-			'title' => 'サンプル投稿タイトル1',
-			'href' => $scripturl . '?topic=1.0',
-			'poster' => 'ユーザー1',
-			'time' => '2時間前'
-		),
-		array(
-			'title' => 'サンプル投稿タイトル2',
-			'href' => $scripturl . '?topic=2.0',
-			'poster' => 'ユーザー2',
-			'time' => '4時間前'
-		),
-		array(
-			'title' => 'サンプル投稿タイトル3',
-			'href' => $scripturl . '?topic=3.0',
-			'poster' => 'ユーザー3',
-			'time' => '6時間前'
-		),
-	);
+	// 実際のデータを取得
+	$recent_posts = getRecentPosts(5);
 
 	echo '
 	<div class="sidebar-widget">
 		<h3>最近の投稿</h3>
-		<div class="widget-content">
-			<ul class="recent-posts-list">';
-		
-	foreach ($recent_posts as $post)
+		<div class="widget-content">';
+	
+	if (!empty($recent_posts))
 	{
-		echo '
-				<li>
-					<a href="', $post['href'], '">', $post['title'], '</a>
-					<div class="recent-posts-meta">
-						by ', $post['poster'], ' - ', $post['time'], '
-					</div>
+		echo '<ul class="recent-posts-list" style="list-style-type: disc; padding-left: 20px; margin: 0;">';
+		foreach ($recent_posts as $post)
+		{
+			echo '
+				<li style="margin-bottom: 8px;">
+					<a href="', $scripturl, '?topic=', $post['id_topic'], '.0">', htmlspecialchars($post['subject']), '</a>
 				</li>';
+		}
+		echo '</ul>';
+	}
+	else
+	{
+		echo '<p>最新の投稿はありません。</p>';
 	}
 	
 	echo '
-			</ul>
 		</div>
 	</div>';
 }
@@ -330,6 +322,7 @@ function getRecentTopics($limit = 5)
 		FROM {db_prefix}topics AS t
 		INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 		WHERE {query_see_board}
+			AND t.id_board != 8
 		ORDER BY t.id_topic DESC
 		LIMIT {int:limit}',
 		array(
@@ -351,4 +344,287 @@ function getRecentTopics($limit = 5)
 	
 	return $topics;
 }
+
+/**
+ * 動的ウィジェット表示機能
+ */
+function template_display_widget($widget)
+{
+	global $context, $txt, $scripturl, $modSettings;
+
+	echo '
+	<div class="sidebar-widget widget-', $widget['type'], '" data-widget-id="', $widget['id'], '">
+		<h3>', $widget['title'], '</h3>
+		<div class="widget-content">';
+
+	switch ($widget['type'])
+	{
+		case 'html':
+			echo $widget['content'];
+			break;
+
+		case 'php':
+			// セキュリティ考慮：管理者のみPHPコード実行可能
+			if (!empty($modSettings['widget_allow_php']) && allowedTo('admin_forum'))
+			{
+				try {
+					eval('?>' . $widget['content']);
+				} catch (Exception $e) {
+					echo '<div class="errorbox">Widget Error: ', $e->getMessage(), '</div>';
+				}
+			}
+			else
+			{
+				echo '<div class="infobox">PHP execution is disabled for security reasons.</div>';
+			}
+			break;
+
+		case 'recent_posts':
+			template_widget_recent_posts_dynamic();
+			break;
+
+		case 'stats':
+			template_widget_stats_dynamic();
+			break;
+
+		case 'japanese_jobs':
+			template_widget_japanese_jobs_dynamic();
+			break;
+
+		case 'adsense':
+			echo $widget['content'];
+			break;
+
+		case 'custom':
+		default:
+			echo $widget['content'];
+			break;
+	}
+
+	echo '
+		</div>
+	</div>';
+}
+
+/**
+ * データベースから動的ウィジェットを取得
+ */
+function getSidebarWidgets($position = 'right')
+{
+	global $smcFunc, $context;
+
+	$current_page = getCurrentPageType();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_widget, widget_name, widget_title, widget_content, widget_type
+		FROM {db_prefix}sidebar_widgets
+		WHERE position = {string:position}
+			AND is_enabled = 1
+			AND (display_pages IS NULL OR display_pages = {string:empty} OR display_pages LIKE {string:current_page})
+		ORDER BY display_order',
+		array(
+			'position' => $position,
+			'empty' => '',
+			'current_page' => '%"' . $current_page . '"%'
+		)
+	);
+
+	$widgets = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$widgets[] = array(
+			'id' => $row['id_widget'],
+			'name' => $row['widget_name'],
+			'title' => $row['widget_title'],
+			'content' => $row['widget_content'],
+			'type' => $row['widget_type']
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $widgets;
+}
+
+/**
+ * 現在のページタイプを取得
+ */
+function getCurrentPageType()
+{
+	global $context;
+
+	// Board index (forum homepage)
+	if (empty($context['current_action']) && empty($context['current_board']) && empty($context['current_topic']))
+		return 'index';
+
+	// Message index (topic list)
+	if (!empty($context['current_board']) && empty($context['current_topic']) && (empty($context['current_action']) || $context['current_action'] == 'messageindex'))
+		return 'messageindex';
+
+	// Topic display (individual topic/posts)
+	if (!empty($context['current_topic']) && (empty($context['current_action']) || $context['current_action'] == 'display'))
+		return 'display';
+
+	// Other actions
+	if (!empty($context['current_action']))
+		return $context['current_action'];
+
+	return 'unknown';
+}
+
+/**
+ * 動的最新投稿ウィジェット（データベースから実際のデータを取得）
+ */
+function template_widget_recent_posts_dynamic()
+{
+	global $context, $txt, $scripturl;
+
+	$recent_posts = getRecentPosts(5);
+
+	if (!empty($recent_posts))
+	{
+		echo '<ul class="recent-posts-list" style="list-style-type: disc; padding-left: 20px; margin: 0;">';
+		foreach ($recent_posts as $post)
+		{
+			echo '
+				<li style="margin-bottom: 8px;">
+					<a href="', $scripturl, '?topic=', $post['id_topic'], '.0">', htmlspecialchars($post['subject']), '</a>
+				</li>';
+		}
+		echo '</ul>';
+	}
+	else
+	{
+		echo '<p>最新の投稿はありません。</p>';
+	}
+}
+
+/**
+ * 動的統計ウィジェット（リアルタイムデータ）
+ */
+function template_widget_stats_dynamic()
+{
+	global $context, $txt, $modSettings;
+
+	$stats = array(
+		$txt['total_posts'] => !empty($modSettings['totalMessages']) ? comma_format($modSettings['totalMessages']) : '0',
+		$txt['total_topics'] => !empty($modSettings['totalTopics']) ? comma_format($modSettings['totalTopics']) : '0',
+		$txt['total_members'] => !empty($modSettings['totalMembers']) ? comma_format($modSettings['totalMembers']) : '0',
+		$txt['latest_member'] => !empty($context['common_stats']['latest_member']['link']) ? $context['common_stats']['latest_member']['link'] : $txt['not_applicable']
+	);
+
+	echo '<ul class="stats-list">';
+	foreach ($stats as $label => $value)
+	{
+		echo '
+			<li>
+				<span class="stat-label">', $label, '</span>
+				<span class="stat-value">', $value, '</span>
+			</li>';
+	}
+	echo '</ul>';
+}
+
+/**
+ * 最新投稿データを取得（ウィジェット用）
+ */
+function getRecentPosts($limit = 5)
+{
+	global $smcFunc;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT m.id_msg, m.id_topic, m.subject, m.poster_name, m.poster_time,
+		       t.id_board
+		FROM {db_prefix}messages AS m
+		INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+		INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+		WHERE {query_see_board}
+			AND t.id_board != 8
+		ORDER BY m.id_msg DESC
+		LIMIT {int:limit}',
+		array(
+			'limit' => $limit,
+		)
+	);
+
+	$posts = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$posts[] = array(
+			'id_msg' => $row['id_msg'],
+			'id_topic' => $row['id_topic'],
+			'subject' => $row['subject'],
+			'poster_name' => $row['poster_name'],
+			'poster_time' => $row['poster_time'],
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $posts;
+}
+
+/**
+ * Japanese Jobs専用最新投稿ウィジェット表示
+ */
+function template_widget_japanese_jobs_dynamic()
+{
+	global $context, $txt, $scripturl;
+
+	$japanese_jobs = getJapaneseJobsPosts(5);
+
+	if (!empty($japanese_jobs))
+	{
+		echo '<ul class="recent-posts-list" style="list-style-type: disc; padding-left: 20px; margin: 0;">';
+		foreach ($japanese_jobs as $job)
+		{
+			echo '
+				<li style="margin-bottom: 8px;">
+					<a href="', $scripturl, '?topic=', $job['id_topic'], '.0">', htmlspecialchars($job['subject']), '</a>
+				</li>';
+		}
+		echo '</ul>';
+	}
+	else
+	{
+		echo '<p>最新の求人情報はありません。</p>';
+	}
+}
+
+/**
+ * Japanese Jobs（カテゴリー8）の最新投稿データを取得
+ */
+function getJapaneseJobsPosts($limit = 5)
+{
+	global $smcFunc;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT m.id_msg, m.id_topic, m.subject, m.poster_name, m.poster_time,
+		       t.id_board
+		FROM {db_prefix}messages AS m
+		INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+		INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+		WHERE {query_see_board}
+			AND t.id_board = 8
+		ORDER BY m.id_msg DESC
+		LIMIT {int:limit}',
+		array(
+			'limit' => $limit,
+		)
+	);
+
+	$posts = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$posts[] = array(
+			'id_msg' => $row['id_msg'],
+			'id_topic' => $row['id_topic'],
+			'subject' => $row['subject'],
+			'poster_name' => $row['poster_name'],
+			'poster_time' => $row['poster_time'],
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $posts;
+}
+
 ?>

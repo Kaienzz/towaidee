@@ -160,6 +160,7 @@ function AdminMain()
 					'icon' => 'modifications',
 					'subsections' => array(
 						'general' => array($txt['mods_cat_modifications_misc']),
+						'widgets' => array('Widget Management'),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
 						// 'shout' => array($txt['shout']),
 						// Note the comma!! The setting with automatically appear with the first mod to be added.
@@ -261,6 +262,17 @@ function AdminMain()
 						'logs' => array($txt['spider_logs']),
 						'spiders' => array($txt['spiders']),
 						'settings' => array($txt['settings']),
+					),
+				),
+				'managewidgets' => array(
+					'label' => 'Widget Management',
+					'file' => 'ManageSettings.php',
+					'function' => 'ModifyWidgetSettings',
+					'icon' => 'modifications',
+					'permission' => array('admin_forum'),
+					'subsections' => array(
+						'list' => array('Manage Widgets'),
+						'settings' => array('Widget Settings'),
 					),
 				),
 			),

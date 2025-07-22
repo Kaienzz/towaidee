@@ -2704,12 +2704,14 @@ function seo_rewrite_buffer($buffer)
 		if (!empty($modSettings['seo_enable_sitemap']) && !empty($modSettings['seo_sitemap_show']) && $modSettings['seo_sitemap_show'] != 2)
 			$code = '<a href="' . $scripturl . '?action=sitemap" title="' . $txt['seo_sitemap'] . '">' . $txt['seo_sitemap'] . '</a>';
 	
-		if (!seo_is_smf_21()) {
-			$buffer = preg_replace('~(, Simple Machines LLC</a>)~', ', Simple Machines LLC</a> | ' . $code, $buffer);
-			$buffer = preg_replace('~(class="new_win">Simple Machines</a>)~', 'class="new_win">Simple Machines</a> | ' . $code, $buffer);
-		} else {
-			$buffer = preg_replace('~(, Simple Machines</a>)~', ', Simple Machines</a> | ' . $code, $buffer);
-			$buffer = preg_replace('~(rel="noopener">Simple Machines</a>)~', 'rel="noopener">Simple Machines</a> | ' . $code, $buffer);
+		if (!empty($code)) {
+			if (!seo_is_smf_21()) {
+				$buffer = preg_replace('~(, Simple Machines LLC</a>)~', ', Simple Machines LLC</a> | ' . $code, $buffer);
+				$buffer = preg_replace('~(class="new_win">Simple Machines</a>)~', 'class="new_win">Simple Machines</a> | ' . $code, $buffer);
+			} else {
+				$buffer = preg_replace('~(, Simple Machines</a>)~', ', Simple Machines</a> | ' . $code, $buffer);
+				$buffer = preg_replace('~(rel="noopener">Simple Machines</a>)~', 'rel="noopener">Simple Machines</a> | ' . $code, $buffer);
+			}
 		}
 	
 		if ($code !== '' && strpos($buffer, $code) === false)

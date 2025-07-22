@@ -119,6 +119,7 @@ function ModifyModSettings()
 
 	$subActions = array(
 		'general' => 'ModifyGeneralModSettings',
+		'widgets' => 'ModifyWidgetSettings',
 		// Mod authors, once again, if you have a whole section to add do it AFTER this line, and keep a comma at the end.
 	);
 
@@ -129,6 +130,8 @@ function ModifyModSettings()
 		'description' => $txt['modification_settings_desc'],
 		'tabs' => array(
 			'general' => array(
+			),
+			'widgets' => array(
 			),
 		),
 	);
@@ -2484,6 +2487,346 @@ function ModifyAlertsSettings()
 	// Override the description
 	$context['description'] = $txt['notifications_desc'];
 	$context['sub_template'] = 'alert_configuration';
+}
+
+/**
+ * Handles modifying widget settings and management
+ */
+function ModifyWidgetSettings($return_config = false)
+{
+	global $context, $txt, $scripturl, $smcFunc, $modSettings, $sourcedir;
+
+	require_once($sourcedir . '/ManageServer.php');
+	loadLanguage('ManageWidgets');
+
+	// Set up the context for both MOD settings and Layout management access
+	$context['page_title'] = 'Widget Management';
+	$context[$context['admin_menu_name']]['tab_data'] = array(
+		'title' => 'Widget Management',
+		'help' => 'widgets',
+		'description' => 'Manage sidebar widgets and their display settings.',
+		'tabs' => array(
+			'list' => array(),
+			'settings' => array(),
+		),
+	);
+
+	// Handle different actions
+	$action = isset($_REQUEST['waction']) ? $_REQUEST['waction'] : (isset($_REQUEST['sa']) ? $_REQUEST['sa'] : 'list');
+
+	switch ($action) {
+		case 'list':
+			return WidgetList();
+		case 'add':
+			return WidgetAdd();
+		case 'edit':
+			return WidgetEdit();
+		case 'delete':
+			return WidgetDelete();
+		case 'toggle':
+			return WidgetToggle();
+		case 'save':
+			return WidgetSave();
+		default:
+			return WidgetSettings($return_config);
+	}
+}
+
+/**
+ * Display widget list
+ */
+function WidgetList()
+{
+	global $context, $smcFunc, $txt, $scripturl;
+
+	$context['page_title'] = $txt['widgets_management'];
+	$context['sub_template'] = 'widget_list';
+
+	// Get widgets from database
+	$request = $smcFunc['db_query']('', '
+		SELECT id_widget, widget_name, widget_title, widget_type, position, 
+		       display_order, is_enabled, display_pages
+		FROM {db_prefix}sidebar_widgets
+		ORDER BY position, display_order'
+	);
+
+	$context['widgets'] = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$context['widgets'][] = array(
+			'id' => $row['id_widget'],
+			'name' => $row['widget_name'],
+			'title' => $row['widget_title'],
+			'type' => $row['widget_type'],
+			'position' => $row['position'],
+			'order' => $row['display_order'],
+			'enabled' => !empty($row['is_enabled']),
+			'pages' => $row['display_pages']
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	$context['widget_types'] = array(
+		'html' => $txt['widget_type_html'],
+		'php' => $txt['widget_type_php'],
+		'recent_posts' => $txt['widget_type_recent_posts'],
+		'stats' => $txt['widget_type_stats'],
+		'adsense' => $txt['widget_type_adsense'],
+		'custom' => $txt['widget_type_custom']
+	);
+
+	loadTemplate('ManageWidgets');
+}
+
+/**
+ * Add new widget form
+ */
+function WidgetAdd()
+{
+	global $context, $txt;
+
+	$context['page_title'] = $txt['widgets_add'];
+	$context['sub_template'] = 'widget_edit';
+	$context['is_new'] = true;
+
+	$context['widget'] = array(
+		'id' => 0,
+		'name' => '',
+		'title' => '',
+		'content' => '',
+		'type' => 'html',
+		'position' => 'right',
+		'order' => 0,
+		'enabled' => true,
+		'pages' => '["index","messageindex","display"]'
+	);
+
+	loadTemplate('ManageWidgets');
+}
+
+/**
+ * Edit widget form
+ */
+function WidgetEdit()
+{
+	global $context, $txt, $smcFunc;
+
+	$widget_id = (int) $_REQUEST['id'];
+	if (empty($widget_id)) {
+		$redirect_area = isset($_REQUEST['area']) && $_REQUEST['area'] == 'managewidgets' ? 'managewidgets' : 'modsettings';
+		$redirect_sa = $redirect_area == 'managewidgets' ? 'list' : 'widgets';
+		redirectexit('action=admin;area=' . $redirect_area . ';sa=' . $redirect_sa);
+	}
+
+	$context['page_title'] = $txt['widgets_edit'];
+	$context['sub_template'] = 'widget_edit';
+	$context['is_new'] = false;
+
+	// Get widget data
+	$request = $smcFunc['db_query']('', '
+		SELECT id_widget, widget_name, widget_title, widget_content, widget_type,
+		       position, display_order, is_enabled, display_pages
+		FROM {db_prefix}sidebar_widgets
+		WHERE id_widget = {int:widget_id}
+		LIMIT 1',
+		array('widget_id' => $widget_id)
+	);
+
+	if ($smcFunc['db_num_rows']($request) == 0) {
+		$redirect_area = isset($_REQUEST['area']) && $_REQUEST['area'] == 'managewidgets' ? 'managewidgets' : 'modsettings';
+		$redirect_sa = $redirect_area == 'managewidgets' ? 'list' : 'widgets';
+		redirectexit('action=admin;area=' . $redirect_area . ';sa=' . $redirect_sa);
+	}
+
+	$row = $smcFunc['db_fetch_assoc']($request);
+	$smcFunc['db_free_result']($request);
+
+	$context['widget'] = array(
+		'id' => $row['id_widget'],
+		'name' => $row['widget_name'],
+		'title' => $row['widget_title'],
+		'content' => $row['widget_content'],
+		'type' => $row['widget_type'],
+		'position' => $row['position'],
+		'order' => $row['display_order'],
+		'enabled' => !empty($row['is_enabled']),
+		'pages' => $row['display_pages']
+	);
+
+	loadTemplate('ManageWidgets');
+}
+
+/**
+ * Save widget
+ */
+function WidgetSave()
+{
+	global $smcFunc;
+
+	checkSession();
+
+	$widget_id = (int) $_POST['widget_id'];
+	$widget_name = $smcFunc['htmlspecialchars']($_POST['widget_name'], ENT_QUOTES);
+	$widget_title = $smcFunc['htmlspecialchars']($_POST['widget_title'], ENT_QUOTES);
+	$widget_content = $_POST['widget_content']; // Allow HTML/PHP content
+	$widget_type = $_POST['widget_type'];
+	$position = $_POST['position'];
+	$display_order = (int) $_POST['display_order'];
+	$is_enabled = !empty($_POST['is_enabled']) ? 1 : 0;
+	$display_pages = $_POST['display_pages'];
+
+	if (empty($widget_id))
+	{
+		// Insert new widget
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}sidebar_widgets',
+			array(
+				'widget_name' => 'string-255',
+				'widget_title' => 'string-255',
+				'widget_content' => 'text',
+				'widget_type' => 'string-20',
+				'position' => 'string-10',
+				'display_order' => 'int',
+				'is_enabled' => 'int',
+				'display_pages' => 'text'
+			),
+			array(
+				$widget_name,
+				$widget_title,
+				$widget_content,
+				$widget_type,
+				$position,
+				$display_order,
+				$is_enabled,
+				$display_pages
+			),
+			array('id_widget')
+		);
+	}
+	else
+	{
+		// Update existing widget
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}sidebar_widgets
+			SET widget_name = {string:name},
+			    widget_title = {string:title},
+			    widget_content = {text:content},
+			    widget_type = {string:type},
+			    position = {string:position},
+			    display_order = {int:order},
+			    is_enabled = {int:enabled},
+			    display_pages = {text:pages}
+			WHERE id_widget = {int:id}',
+			array(
+				'name' => $widget_name,
+				'title' => $widget_title,
+				'content' => $widget_content,
+				'type' => $widget_type,
+				'position' => $position,
+				'order' => $display_order,
+				'enabled' => $is_enabled,
+				'pages' => $display_pages,
+				'id' => $widget_id
+			)
+		);
+	}
+
+	$_SESSION['adm-save'] = true;
+	
+	// Check if accessing from layout management or mod settings
+	$redirect_area = isset($_REQUEST['area']) && $_REQUEST['area'] == 'managewidgets' ? 'managewidgets' : 'modsettings';
+	$redirect_sa = $redirect_area == 'managewidgets' ? 'list' : 'widgets';
+	
+	redirectexit('action=admin;area=' . $redirect_area . ';sa=' . $redirect_sa);
+}
+
+/**
+ * Delete widget
+ */
+function WidgetDelete()
+{
+	global $smcFunc;
+
+	checkSession('get');
+
+	$widget_id = (int) $_REQUEST['id'];
+	if (!empty($widget_id))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}sidebar_widgets
+			WHERE id_widget = {int:id}',
+			array('id' => $widget_id)
+		);
+	}
+
+	$redirect_area = isset($_REQUEST['area']) && $_REQUEST['area'] == 'managewidgets' ? 'managewidgets' : 'modsettings';
+	$redirect_sa = $redirect_area == 'managewidgets' ? 'list' : 'widgets';
+	redirectexit('action=admin;area=' . $redirect_area . ';sa=' . $redirect_sa);
+}
+
+/**
+ * Toggle widget enable/disable
+ */
+function WidgetToggle()
+{
+	global $smcFunc;
+
+	checkSession('get');
+
+	$widget_id = (int) $_REQUEST['id'];
+	if (!empty($widget_id))
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}sidebar_widgets
+			SET is_enabled = 1 - is_enabled
+			WHERE id_widget = {int:id}',
+			array('id' => $widget_id)
+		);
+	}
+
+	$redirect_area = isset($_REQUEST['area']) && $_REQUEST['area'] == 'managewidgets' ? 'managewidgets' : 'modsettings';
+	$redirect_sa = $redirect_area == 'managewidgets' ? 'list' : 'widgets';
+	redirectexit('action=admin;area=' . $redirect_area . ';sa=' . $redirect_sa);
+}
+
+/**
+ * Widget settings configuration
+ */
+function WidgetSettings($return_config = false)
+{
+	global $txt, $scripturl, $context, $sourcedir;
+
+	$config_vars = array(
+		array('check', 'widget_enable_caching', 'text_label' => $txt['widget_enable_caching']),
+		array('int', 'widget_cache_time', 'text_label' => $txt['widget_cache_time']),
+		array('check', 'widget_allow_php', 'text_label' => $txt['widget_allow_php']),
+		'',
+		array('desc', 'widget_settings_desc'),
+	);
+
+	if ($return_config)
+		return $config_vars;
+
+	$context['sub_template'] = 'show_settings';
+	$context['page_title'] = $txt['widgets_settings'];
+
+	if (isset($_GET['save']))
+	{
+		checkSession();
+		$save_vars = $config_vars;
+		saveDBSettings($save_vars);
+		$_SESSION['adm-save'] = true;
+		
+		$redirect_area = isset($_REQUEST['area']) && $_REQUEST['area'] == 'managewidgets' ? 'managewidgets' : 'modsettings';
+		$redirect_sa = $redirect_area == 'managewidgets' ? 'settings' : 'widgets';
+		$redirect_extra = $redirect_area == 'modsettings' ? ';waction=settings' : '';
+		redirectexit('action=admin;area=' . $redirect_area . ';sa=' . $redirect_sa . $redirect_extra);
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=modsettings;sa=widgets;waction=settings;save';
+	$context['settings_title'] = $txt['widgets_settings'];
+
+	prepareDBSettingContext($config_vars);
 }
 
 ?>
