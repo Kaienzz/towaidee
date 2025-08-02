@@ -615,6 +615,66 @@ nav#main_nav ul.menu_nav ul li a:hover span.amt {
 		width: 200px;
 	}
 }
+
+/* Mobile and tablet responsive layout */
+@media (max-width: 768px) {
+	/* For index.template.php layout */
+	#content_section {
+		flex-direction: column !important;
+		gap: 1em;
+	}
+	
+	#main_content_section {
+		order: 1 !important;
+		width: 100% !important;
+		flex-shrink: 0 !important;
+	}
+	
+	#sidebar_right.sidebar {
+		order: 2 !important;
+		width: 100% !important;
+		flex-shrink: 0 !important;
+	}
+	
+	/* For BoardIndex.template.php and other two-column layouts */
+	.two-column-layout.board-index-layout {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 1em;
+	}
+	
+	.two-column-layout.board-index-layout .main-content {
+		order: 1 !important;
+		width: 100% !important;
+		flex-shrink: 0 !important;
+	}
+	
+	.two-column-layout.board-index-layout .sidebar {
+		order: 2 !important;
+		width: 100% !important;
+		flex-shrink: 0 !important;
+	}
+	
+	/* Alternative approach - target all two-column layouts */
+	.two-column-layout {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 1em;
+	}
+	
+	.two-column-layout > .main-content {
+		order: 1 !important;
+		width: 100% !important;
+		flex-shrink: 0 !important;
+	}
+	
+	.two-column-layout > .sidebar {
+		order: 2 !important;
+		width: 100% !important;
+		flex-shrink: 0 !important;
+	}
+}
+
 /* When sidebars are disabled */
 #content_section:has(#main_content_section:only-child) {
 	justify-content: center;

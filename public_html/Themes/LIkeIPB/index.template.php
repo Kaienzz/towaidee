@@ -153,8 +153,7 @@ function template_body_above()
 		}
 
 		// ホーム（＝Boardindex）の場合
-		if (empty($context['current_board']) && empty($context['current_topic']) &&
-			(empty($context['current_action']) || strpos($context['current_action'], 'admin') === false))
+		if (empty($context['current_board']) && empty($context['current_topic']) && empty($context['current_action']))
 		{
 			template_welcome_box();
 		}
@@ -175,30 +174,6 @@ function template_body_above()
 				</div><!-- #inner_section -->
 			</div><!-- #upper_section -->
 			<div id="content_section">';
-			
-			// Show left sidebar if enabled and on 2-column layout pages only
-			if (empty($modSettings['disable_left_sidebar']) && !empty($context['use_two_column']))
-			{
-				echo '
-				<div id="sidebar_left" class="sidebar">
-					<div class="sidebar_content">';
-					
-					// Load sidebar template
-					require_once($settings['theme_dir'] . '/Sidebar.template.php');
-					if (function_exists('template_left_sidebar')) {
-						template_left_sidebar();
-					} else {
-						// Fallback to individual widgets
-						template_sidebar_adsense();
-						template_sidebar_recent_posts();
-						template_sidebar_stats();
-						template_sidebar_online_users();
-					}
-					
-					echo '
-					</div>
-				</div><!-- #sidebar_left -->';
-			}
 			
 		echo '
 				<div id="main_content_section">';

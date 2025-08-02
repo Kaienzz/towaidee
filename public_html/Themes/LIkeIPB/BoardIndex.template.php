@@ -161,6 +161,7 @@ function template_main()
 		<div class="sidebar">';
 			
 	// サイドバーコンテンツを読み込み
+	require_once(dirname(__FILE__) . '/Sidebar.template.php');
 	template_sidebar_content();
 	
 	echo '

@@ -45,7 +45,7 @@ function template_widget_list()
 				• <strong>Toggle Enable/Disable:</strong> Click the checkmark icon to enable/disable widgets<br>
 				• <strong>Edit:</strong> Modify widget content, position, and display settings<br>
 				• <strong>Delete:</strong> Remove widgets permanently<br>
-				• <strong>Display Order:</strong> Lower numbers appear first in the sidebar
+				• <strong>Display Order:</strong> Lower numbers appear first in the right sidebar
 			</div>
 			<br>';
 
@@ -89,7 +89,7 @@ function template_widget_list()
 					<tr class="windowbg">
 						<td><strong>', $widget['title'], '</strong><br><small>', $widget['name'], '</small></td>
 						<td>', isset($widget_types[$widget['type']]) ? $widget_types[$widget['type']] : ucfirst($widget['type']), '</td>
-						<td>', $widget['position'] == 'left' ? 'Left Sidebar' : 'Right Sidebar', '</td>
+						<td>Right Sidebar</td>
 						<td>', $widget['order'], '</td>
 						<td>
 							<a href="', $scripturl, '?action=admin;area=', $area, $sa_param, $waction_param, 'toggle;id=', $widget['id'], ';', $context['session_var'], '=', $context['session_id'], '">
@@ -201,8 +201,7 @@ function template_widget_edit()
 					</dt>
 					<dd>
 						<select name="position" id="position">
-							<option value="left"', $context['widget']['position'] == 'left' ? ' selected' : '', '>Left Sidebar</option>
-							<option value="right"', $context['widget']['position'] == 'right' ? ' selected' : '', '>Right Sidebar</option>
+							<option value="right" selected>Right Sidebar</option>
 						</select>
 					</dd>
 

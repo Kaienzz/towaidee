@@ -14,8 +14,8 @@ function template_sidebar_content()
 {
 	global $context, $txt, $scripturl, $modSettings;
 
-	// 動的ウィジェットを取得して表示
-	$widgets = getSidebarWidgets('right');
+	// 動的ウィジェットを取得して表示（leftとrightの両方）
+	$widgets = array_merge(getSidebarWidgets('left'), getSidebarWidgets('right'));
 	
 	if (!empty($widgets))
 	{
@@ -240,6 +240,57 @@ function template_left_sidebar()
 function template_right_sidebar()
 {
 	global $context, $scripturl, $txt, $modSettings, $user_info;
+	
+	// Quick Navigation (moved from left sidebar)
+	echo '
+	<div class="sidebar_block">
+		<h4 class="sidebar_title">', $txt['quick_navigation'], '</h4>
+		<div class="sidebar_content_inner">
+			<ul>
+				<li><a href="', $scripturl, '">', $txt['home'], '</a></li>
+				<li><a href="', $scripturl, '?action=unread">', $txt['unread_topics_visit'], '</a></li>
+				<li><a href="', $scripturl, '?action=unreadreplies">', $txt['unread_replies'], '</a></li>';
+	
+	if ($context['allow_search'])
+		echo '
+				<li><a href="', $scripturl, '?action=search">', $txt['search'], '</a></li>';
+	
+	echo '
+				<li><a href="', $scripturl, '?action=stats">', $txt['forum_stats'], '</a></li>
+				<li><a href="', $scripturl, '?action=mlist">', $txt['member_list'], '</a></li>
+			</ul>
+		</div>
+	</div>';
+	
+	// Recent posts (moved from left sidebar)
+	if (!empty($modSettings['enableRecentPosts']))
+	{
+		echo '
+	<div class="sidebar_block">
+		<h4 class="sidebar_title">', $txt['recent_posts'], '</h4>
+		<div class="sidebar_content_inner">';
+		
+		// Get recent topics
+		$recent_topics = getRecentTopics(5);
+		if (!empty($recent_topics))
+		{
+			echo '<ul>';
+			foreach ($recent_topics as $topic)
+			{
+				echo '
+				<li><a href="', $scripturl, '?topic=', $topic['id_topic'], '.0">', $topic['subject'], '</a></li>';
+			}
+			echo '</ul>';
+		}
+		else
+		{
+			echo '<p>', $txt['no_recent_posts'], '</p>';
+		}
+		
+		echo '
+		</div>
+	</div>';
+	}
 	
 	// Forum statistics
 	echo '

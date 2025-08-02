@@ -325,7 +325,7 @@ function template_seo_sitemap_board()
 						foreach($context['topics'] as $topic)
 						{
 							echo '
-							<li><a href="' . $topic['href'] . '">' . $topic['subject'] . '</a> (' .$topic['num_replies']. ' replies)</li>';
+							<li><a href="' . ($topic['href'] ?? '#') . '">' . ($topic['subject'] ?? 'Unknown') . '</a> (' . ($topic['num_replies'] ?? 0) . ' replies)</li>';
 						}
 					echo'
 					</ul>';
